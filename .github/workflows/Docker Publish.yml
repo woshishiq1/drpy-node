@@ -5,6 +5,7 @@ on:
     workflows: ["Sync full repo from hjdhnx/drpy-node"]
     types:
       - completed
+  workflow_dispatch: # 支持手动触发  
 
 env:
   REGISTRY: docker.io
