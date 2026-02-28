@@ -396290,11 +396290,14 @@ var FetchAxios = class {
 				}
 			}
 		}
-		let fetchDispatcher = undefined;
+		let fetchDispatcher = new import_undici.Agent({ connect: { rejectUnauthorized: false } });
 		try {
 			const proxy = await getSystemProxy();
 			if (proxy) {
-				fetchDispatcher = new import_undici.ProxyAgent(proxy);
+				fetchDispatcher = new import_undici.ProxyAgent({
+					uri: proxy,
+					connect: { rejectUnauthorized: false }
+				});
 			} else {
 				let fullUrl = finalConfig.url;
 				if (finalConfig.baseURL && !/^https?:\/\//i.test(fullUrl)) {
@@ -414740,7 +414743,9 @@ const init = async function(filePath, env = {}, refresh) {
 		} else {
 			rule = module.default || module;
 		}
-		await rule.init(default_init_cfg);
+		if (typeof rule.init === "function") {
+			await rule.init(default_init_cfg);
+		}
 		let t2 = getNowTime$1();
 		const moduleObject = deepCopy$1(rule);
 		moduleObject.cost = t2 - t1;
