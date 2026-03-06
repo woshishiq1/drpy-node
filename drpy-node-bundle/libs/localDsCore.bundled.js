@@ -42355,7 +42355,7 @@ const constants$1 = Object.freeze(Object.assign(Object.create(null), {
 }, realZlibConstants));
 //#endregion
 //#region ../node_modules/minizlib/dist/esm/index.js
-var esm_exports$1 = /* @__PURE__ */ __exportAll({
+var esm_exports$2 = /* @__PURE__ */ __exportAll({
 	BrotliCompress: () => BrotliCompress,
 	BrotliDecompress: () => BrotliDecompress,
 	Deflate: () => Deflate,
@@ -120424,7 +120424,7 @@ function isValidFeed(value) {
 }
 //#endregion
 //#region ../node_modules/domutils/lib/esm/index.js
-var esm_exports = /* @__PURE__ */ __exportAll({
+var esm_exports$1 = /* @__PURE__ */ __exportAll({
 	DocumentPosition: () => DocumentPosition,
 	append: () => append$1,
 	appendChild: () => appendChild,
@@ -124223,13 +124223,13 @@ function reduceRules(a, b) {
 //#region ../node_modules/css-select/lib/esm/index.js
 const defaultEquals = (a, b) => a === b;
 const defaultOptions = {
-	adapter: esm_exports,
+	adapter: esm_exports$1,
 	equals: defaultEquals
 };
 function convertOptionFormats(options) {
 	var _a, _b, _c, _d;
 	const opts = options !== null && options !== void 0 ? options : defaultOptions;
-	(_a = opts.adapter) !== null && _a !== void 0 || (opts.adapter = esm_exports);
+	(_a = opts.adapter) !== null && _a !== void 0 || (opts.adapter = esm_exports$1);
 	(_b = opts.equals) !== null && _b !== void 0 || (opts.equals = (_d = (_c = opts.adapter) === null || _c === void 0 ? void 0 : _c.equals) !== null && _d !== void 0 ? _d : defaultEquals);
 	return opts;
 }
@@ -124459,7 +124459,7 @@ function findFilterElements(root, selector, options, queryForSelector, totalLimi
 	if (remainingHasTraversal) {
 		if ((0, import_commonjs.isTraversal)(remainingSelector[0])) {
 			const { type } = remainingSelector[0];
-			if (type === import_commonjs.SelectorType.Sibling || type === import_commonjs.SelectorType.Adjacent) result = prepareContext(result, esm_exports, true);
+			if (type === import_commonjs.SelectorType.Sibling || type === import_commonjs.SelectorType.Adjacent) result = prepareContext(result, esm_exports$1, true);
 			remainingSelector.unshift(UNIVERSAL_SELECTOR);
 		}
 		options = {
@@ -124477,7 +124477,7 @@ function findElements(root, sel, options, limit) {
 	return find$2(root, _compileToken(sel, options, root), limit);
 }
 function find$2(root, query, limit = Infinity) {
-	return find$3((node) => isTag(node) && query(node), prepareContext(root, esm_exports, query.shouldTestNextSiblings), true, limit);
+	return find$3((node) => isTag(node) && query(node), prepareContext(root, esm_exports$1, query.shouldTestNextSiblings), true, limit);
 }
 function filterElements(elements, sel, options) {
 	const els = (Array.isArray(elements) ? elements : [elements]).filter(isTag);
@@ -164200,6 +164200,15 @@ var require_mime_type = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 }));
 //#endregion
 //#region ../node_modules/cheerio/dist/esm/index.js
+var esm_exports = /* @__PURE__ */ __exportAll({
+	contains: () => contains$1,
+	decodeStream: () => decodeStream,
+	fromURL: () => fromURL,
+	load: () => load,
+	loadBuffer: () => loadBuffer,
+	merge: () => merge,
+	stringStream: () => stringStream
+});
 var import_undici = /* @__PURE__ */ __toESM(require_undici(), 1);
 var import_mime_type = /* @__PURE__ */ __toESM(require_mime_type(), 1);
 /**
@@ -374901,6 +374910,13 @@ const ROOT_DIR = path.resolve(__dirname$4, "../");
 const LIB_ROOT = path.join(ROOT_DIR, "spider/js");
 const customRequire = createRequire$1(import.meta.url);
 const rootRequire = (modulePath) => {
+	if (modulePath === "iconv-lite") return globalThis.iconv;
+	if (modulePath === "axios") return globalThis.axios;
+	if (modulePath === "cheerio") return globalThis.cheerio;
+	if (modulePath === "qs") return globalThis.qs;
+	if (modulePath === "crypto-js") return globalThis.CryptoJS;
+	if (modulePath === "fs" && globalThis.fs) return globalThis.fs;
+	if (modulePath === "path" && globalThis.path) return globalThis.path;
 	if (modulePath.startsWith("./") || modulePath.startsWith("../")) return customRequire(path.resolve(LIB_ROOT, modulePath));
 	return customRequire(modulePath);
 };
@@ -382298,6 +382314,7 @@ const batchFetch4 = async (items, maxWorkers = 5, timeoutConfig = 5e3) => {
 //#endregion
 //#region ../libs_drpy/drpyInject.js
 globalThis.iconv = import_lib$1.default;
+globalThis.cheerio = esm_exports;
 globalThis.batchFetch = batchFetch3;
 globalThis.axios = axios$1;
 globalThis.axiosX = pt;
@@ -392864,13 +392881,15 @@ async function getSandbox(env = {}) {
 		createFTPClient,
 		DataBase,
 		database,
-		require: __require,
+		require: rootRequire,
 		WebSocket: wrapper_default,
 		WebSocketServer: import_websocket_server.default,
 		zlib,
 		JSONbig: import_json_bigint.default,
 		JsonBig,
-		minizlib: esm_exports$1
+		minizlib: esm_exports$2,
+		iconv: globalThis.iconv,
+		cheerio: globalThis.cheerio
 	};
 	const sandbox = {
 		console,
