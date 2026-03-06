@@ -382297,6 +382297,7 @@ const batchFetch4 = async (items, maxWorkers = 5, timeoutConfig = 5e3) => {
 };
 //#endregion
 //#region ../libs_drpy/drpyInject.js
+globalThis.iconv = import_lib$1.default;
 globalThis.batchFetch = batchFetch3;
 globalThis.axios = axios$1;
 globalThis.axiosX = pt;
