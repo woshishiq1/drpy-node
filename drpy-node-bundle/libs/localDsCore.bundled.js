@@ -14071,6 +14071,285 @@ global.NODERSA = import_node_rsa.default;
 global.atob = atob$3;
 global.btoa = btoa$3;
 //#endregion
+//#region ../libs_drpy/crypto-util.js
+/**
+* 加密解密工具库
+* 提供Base64、MD5、RC4等加密解密功能
+*/
+/**
+* 浏览器兼容的Base64编解码实现
+* @returns {Object} 包含atob和btoa方法的对象
+*/
+function window_b64() {
+	let b64map = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+	let base64DecodeChars = new Array(-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 62, -1, -1, -1, 63, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, -1, -1, -1, -1, -1, -1, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, -1, -1, -1, -1, -1, -1, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, -1, -1, -1, -1, -1);
+	/**
+	* Base64编码
+	* @param {string} str 待编码字符串
+	* @returns {string} Base64编码结果
+	*/
+	function btoa(str) {
+		var out, i, len;
+		var c1, c2, c3;
+		len = str.length;
+		i = 0;
+		out = "";
+		while (i < len) {
+			c1 = str.charCodeAt(i++) & 255;
+			if (i == len) {
+				out += b64map.charAt(c1 >> 2);
+				out += b64map.charAt((c1 & 3) << 4);
+				out += "==";
+				break;
+			}
+			c2 = str.charCodeAt(i++);
+			if (i == len) {
+				out += b64map.charAt(c1 >> 2);
+				out += b64map.charAt((c1 & 3) << 4 | (c2 & 240) >> 4);
+				out += b64map.charAt((c2 & 15) << 2);
+				out += "=";
+				break;
+			}
+			c3 = str.charCodeAt(i++);
+			out += b64map.charAt(c1 >> 2);
+			out += b64map.charAt((c1 & 3) << 4 | (c2 & 240) >> 4);
+			out += b64map.charAt((c2 & 15) << 2 | (c3 & 192) >> 6);
+			out += b64map.charAt(c3 & 63);
+		}
+		return out;
+	}
+	/**
+	* Base64解码
+	* @param {string} str Base64编码字符串
+	* @returns {string} 解码结果
+	*/
+	function atob(str) {
+		var c1, c2, c3, c4;
+		var i, len = str.length, out;
+		i = 0;
+		out = "";
+		while (i < len) {
+			do
+				c1 = base64DecodeChars[str.charCodeAt(i++) & 255];
+			while (i < len && c1 == -1);
+			if (c1 == -1) break;
+			do
+				c2 = base64DecodeChars[str.charCodeAt(i++) & 255];
+			while (i < len && c2 == -1);
+			if (c2 == -1) break;
+			out += String.fromCharCode(c1 << 2 | (c2 & 48) >> 4);
+			do {
+				c3 = str.charCodeAt(i++) & 255;
+				if (c3 == 61) return out;
+				c3 = base64DecodeChars[c3];
+			} while (i < len && c3 == -1);
+			if (c3 == -1) break;
+			out += String.fromCharCode((c2 & 15) << 4 | (c3 & 60) >> 2);
+			do {
+				c4 = str.charCodeAt(i++) & 255;
+				if (c4 == 61) return out;
+				c4 = base64DecodeChars[c4];
+			} while (i < len && c4 == -1);
+			if (c4 == -1) break;
+			out += String.fromCharCode((c3 & 3) << 6 | c4);
+		}
+		return out;
+	}
+	return {
+		atob,
+		btoa
+	};
+}
+const { atob: atob$2, btoa: btoa$2 } = window_b64();
+/**
+* Base64编码（使用CryptoJS）
+* @param {string} text 待编码文本
+* @returns {string} Base64编码结果
+*/
+function base64Encode$1(text) {
+	return CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(text));
+}
+/**
+* Base64解码（使用CryptoJS）
+* @param {string} text Base64编码文本
+* @returns {string} 解码结果
+*/
+function base64Decode$2(text) {
+	return CryptoJS.enc.Utf8.stringify(CryptoJS.enc.Base64.parse(text));
+}
+/**
+* MD5哈希
+* @param {string} text 待哈希文本
+* @returns {string} MD5哈希值
+*/
+function md5$1(text) {
+	return CryptoJS.MD5(text).toString();
+}
+/**
+* RC4加密
+* @param {string} word 待加密内容
+* @param {string} key 加密密钥
+* @returns {string} 加密结果
+*/
+function rc4Encrypt(word, key) {
+	return CryptoJS.RC4.encrypt(word, CryptoJS.enc.Utf8.parse(key)).toString();
+}
+/**
+* RC4解密
+* @param {string} word 待解密内容
+* @param {string} key 解密密钥
+* @returns {string} 解密结果
+*/
+function rc4Decrypt(word, key) {
+	const ciphertext = CryptoJS.enc.Hex.parse(word);
+	const key_data = CryptoJS.enc.Utf8.parse(key);
+	return CryptoJS.RC4.decrypt({ ciphertext }, key_data, {
+		mode: CryptoJS.mode.ECB,
+		padding: CryptoJS.pad.Pkcs7
+	}).toString(CryptoJS.enc.Utf8);
+}
+/**
+* RC4解码（自定义实现）
+* @param {string} data 待解码数据
+* @param {string} key 密钥
+* @param {number} t 类型标识
+* @returns {string} 解码结果
+*/
+function rc4_decode(data, key, t) {
+	let pwd = key || "ffsirllq";
+	let cipher = "";
+	key = [];
+	let box = [];
+	let pwd_length = pwd.length;
+	if (t === 1) data = atob$2(data);
+	else data = encodeURIComponent(data);
+	let data_length = data.length;
+	for (let i = 0; i < 256; i++) {
+		key[i] = pwd[i % pwd_length].charCodeAt();
+		box[i] = i;
+	}
+	for (let j = 0, i = 0; i < 256; i++) {
+		j = (j + box[i] + key[i]) % 256;
+		let tmp = box[i];
+		box[i] = box[j];
+		box[j] = tmp;
+	}
+	for (let a = 0, j = 0, i = 0; i < data_length; i++) {
+		a = (a + 1) % 256;
+		j = (j + box[a]) % 256;
+		let tmp = box[a];
+		box[a] = box[j];
+		box[j] = tmp;
+		let k = box[(box[a] + box[j]) % 256];
+		cipher += String.fromCharCode(data[i].charCodeAt() ^ k);
+	}
+	if (t === 1) return decodeURIComponent(cipher);
+	else return btoa$2(cipher);
+}
+/**
+* 十六进制编解码工具
+*/
+const hex = {
+	decode: function(val) {
+		return Buffer.from(val, "hex").toString("utf-8");
+	},
+	encode: function(val) {
+		return Buffer.from(val, "utf-8").toString("hex");
+	}
+};
+/**
+* 解析编码格式
+* @param {string} value 值
+* @param {string} encoding 编码格式
+* @returns {Object} CryptoJS编码对象
+*/
+const parseEncode = function(value, encoding) {
+	switch (encoding) {
+		case "base64": return CryptoJS.enc.Base64.parse(value);
+		case "hex": return CryptoJS.enc.Hex.parse(value);
+		case "latin1": return CryptoJS.enc.Latin1.parse(value);
+		case "utf8": return CryptoJS.enc.Utf8.parse(value);
+		default: return CryptoJS.enc.Utf8.parse(value);
+	}
+};
+/**
+* 格式化编码输出
+* @param {Object} value CryptoJS对象
+* @param {string} encoding 编码格式
+* @returns {string} 格式化结果
+*/
+const formatEncode = function(value, encoding) {
+	switch (encoding.toLowerCase()) {
+		case "base64": return value.toString();
+		case "hex": return value.ciphertext.toString();
+	}
+};
+/**
+* 格式化解码输出
+* @param {Object} value CryptoJS对象
+* @param {string} encoding 编码格式
+* @returns {string} 格式化结果
+*/
+const formatDecode = function(value, encoding) {
+	switch (encoding.toLowerCase()) {
+		case "utf8": return value.toString(CryptoJS.enc.Utf8);
+		case "base64": return value.toString(CryptoJS.enc.Base64);
+		case "hex": return value.toString(CryptoJS.enc.Hex);
+		default: return value.toString(CryptoJS.enc.Utf8);
+	}
+};
+/**
+* 获取加密模式
+* @param {string} mode 模式名称
+* @returns {Object} CryptoJS模式对象
+*/
+const getMode = function(mode) {
+	switch (mode.toLowerCase()) {
+		case "cbc": return CryptoJS.mode.CBC;
+		case "cfb": return CryptoJS.mode.CFB;
+		case "ofb": return CryptoJS.mode.OFB;
+		case "ctr": return CryptoJS.mode.CTR;
+		case "ecb": return CryptoJS.mode.ECB;
+		default: return CryptoJS.mode.CBC;
+	}
+};
+/**
+* 获取填充方式
+* @param {string} padding 填充方式名称
+* @returns {Object} CryptoJS填充对象
+*/
+const getPad = function(padding) {
+	switch (padding.toLowerCase()) {
+		case "zeropadding": return CryptoJS.pad.ZeroPadding;
+		case "pkcs5padding":
+		case "pkcs7padding": return CryptoJS.pad.Pkcs7;
+		case "ansix923": return CryptoJS.pad.AnsiX923;
+		case "iso10126": return CryptoJS.pad.Iso10126;
+		case "iso97971": return CryptoJS.pad.Iso97971;
+		case "nopadding": return CryptoJS.pad.NoPadding;
+		default: return CryptoJS.pad.ZeroPadding;
+	}
+};
+/**
+* RC4加密解密工具
+*/
+const rc4 = {
+	encode: function(val, key, encoding = "utf8", keyEncoding = "utf8", outputEncode = "base64") {
+		if (!["base64", "hex"].includes(outputEncode.toLowerCase())) return "";
+		if (!key || !val) return "";
+		const plaintext = parseEncode(val, encoding);
+		const v = parseEncode(key, keyEncoding);
+		return formatEncode(CryptoJS.RC4.encrypt(plaintext, v), outputEncode);
+	},
+	decode: function(val, key, encoding = "utf8", keyEncoding = "utf8", outputEncode = "base64") {
+		if (!["base64", "hex"].includes(encoding.toLowerCase())) return "";
+		if (!key || !val) return "";
+		const plaintext = parseEncode(val, encoding);
+		const v = parseEncode(key, keyEncoding);
+		return formatDecode(CryptoJS.RC4.toString(plaintext, v), outputEncode);
+	}
+};
+//#endregion
 //#region ../utils/api_helper.js
 /**
 * API辅助工具模块
@@ -105248,7 +105527,6 @@ const ENV = {
 			return envObj;
 		}
 		if (cache.has(key)) return cache.get(key);
-		fastify.log.info(`[get] 从文件中读取: ${key}`);
 		let value = this._readEnvFile()[key] || _value;
 		if (isObject && typeof value !== "object") try {
 			value = JSON.parse(value);
@@ -105657,7 +105935,7 @@ var AliDrive = class {
 			await this.refreshAccessToken();
 			Object.assign(headers, { Authorization: this.user.auth });
 		}
-		const resp = await req$1.post(`${apiUrl}/${url}`, data, { headers }).catch((err) => {
+		const resp = await reqs.post(`${apiUrl}/${url}`, data, { headers }).catch((err) => {
 			console.error(err);
 			return err.response || {
 				status: 500,
@@ -105682,7 +105960,7 @@ var AliDrive = class {
 		let resp = "";
 		if (url.startsWith("http")) {
 			Object.assign(headers, { Authorization: "Bearer " + this.oauth.access_token });
-			resp = await req$1.post(`${url}`, data, { headers }).catch((err) => {
+			resp = await reqs.post(`${url}`, data, { headers }).catch((err) => {
 				console.error(err);
 				return err.response || {
 					status: 500,
@@ -105691,7 +105969,7 @@ var AliDrive = class {
 			});
 		} else {
 			Object.assign(headers, { Authorization: this.user.auth });
-			resp = await req$1.post(`${apiUrl}/${url}`, data, { headers }).catch((err) => {
+			resp = await reqs.post(`${apiUrl}/${url}`, data, { headers }).catch((err) => {
 				console.error(err);
 				return err.response || {
 					status: 500,
@@ -105715,7 +105993,7 @@ var AliDrive = class {
 			"width": 300,
 			"height": 300
 		});
-		let resp = await req$1.post("https://aliyundrive-oauth.messense.me/oauth/authorize/qrcode", data, { headers: { "Content-Type": "application/json" } });
+		let resp = await reqs.post("https://aliyundrive-oauth.messense.me/oauth/authorize/qrcode", data, { headers: { "Content-Type": "application/json" } });
 		if (resp.data.sid) this.sid = resp.data.sid;
 	}
 	async getDriveFlag() {
@@ -105731,10 +106009,10 @@ var AliDrive = class {
 			"sid": this.sid
 		};
 		let headers = { "authorization": this.user.auth };
-		return (await req$1.post("https://open.aliyundrive.com/oauth/users/qrcode/authorize?sid=" + this.sid, body, { headers })).data.result;
+		return (await reqs.post("https://open.aliyundrive.com/oauth/users/qrcode/authorize?sid=" + this.sid, body, { headers })).data.result;
 	}
 	async getDriveCode() {
-		let status = await req$1.get(`https://openapi.aliyundrive.com/oauth/qrcode/${this.sid}/status`);
+		let status = await reqs.get(`https://openapi.aliyundrive.com/oauth/qrcode/${this.sid}/status`);
 		if (status.data.status === "LoginSuccess") return status.data.authCode;
 	}
 	async driveAuth() {
@@ -105748,7 +106026,7 @@ var AliDrive = class {
 					code: await this.getDriveCode(),
 					grant_type: "authorization_code"
 				};
-				let response = await req$1.post("https://aliyundrive-oauth.messense.me/oauth/access_token", data);
+				let response = await reqs.post("https://aliyundrive-oauth.messense.me/oauth/access_token", data);
 				if (response.status === 200) {
 					this.oauth = response.data;
 					const info = JSON.parse(CryptoJS.enc.Base64.parse(this.oauth.access_token.split(".")[1]).toString(CryptoJS.enc.Utf8));
@@ -105762,7 +106040,7 @@ var AliDrive = class {
 	}
 	async refreshAccessToken() {
 		if (!this.user.user_id || this.user.expire_time - (0, import_dayjs_min.default)().unix() < 120) {
-			let loginResp = await req$1.post("https://auth.aliyundrive.com/v2/account/token", {
+			let loginResp = await reqs.post("https://auth.aliyundrive.com/v2/account/token", {
 				refresh_token: this.user.refresh_token || this.token,
 				grant_type: "refresh_token"
 			}, { headers: this.baseHeaders }).catch((err) => {
@@ -105870,8 +106148,10 @@ var AliDrive = class {
 			const subDir = [];
 			for (const item of items) if (item.type === "folder") subDir.push(item);
 			else if (item.type === "file" && item.category === "video") {
+				let text = /[#|'"\[\]&<>]/g;
 				if (item.size < 1024 * 1024 * 5) continue;
 				item.name = item.name.replace(/玩偶哥.*【神秘的哥哥们】/g, "");
+				item.name = text.test(item.name) ? item.name.replace(text, "") : item.name;
 				videos.push(item);
 			} else if (item.type === "file" && subtitleExts.some((x) => item.file_extension.endsWith(x))) subtitles.push(item);
 			for (const dir of subDir) {
@@ -105950,7 +106230,7 @@ var AliDrive = class {
 			"referer": "https://www.alipan.com/"
 		};
 		Object.assign(headers, { Authorization: this.user.auth });
-		let resp = await req$1.post(url, { param }, { headers });
+		let resp = await reqs.post(url, { param }, { headers });
 		if (resp.status === 200) return resp.data;
 		else {
 			console.log("获取用户信息失败");
@@ -113873,285 +114153,6 @@ var CloudDrive = class {
 };
 const Cloud$1 = new CloudDrive();
 //#endregion
-//#region ../libs_drpy/crypto-util.js
-/**
-* 加密解密工具库
-* 提供Base64、MD5、RC4等加密解密功能
-*/
-/**
-* 浏览器兼容的Base64编解码实现
-* @returns {Object} 包含atob和btoa方法的对象
-*/
-function window_b64() {
-	let b64map = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-	let base64DecodeChars = new Array(-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 62, -1, -1, -1, 63, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, -1, -1, -1, -1, -1, -1, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, -1, -1, -1, -1, -1, -1, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, -1, -1, -1, -1, -1);
-	/**
-	* Base64编码
-	* @param {string} str 待编码字符串
-	* @returns {string} Base64编码结果
-	*/
-	function btoa(str) {
-		var out, i, len;
-		var c1, c2, c3;
-		len = str.length;
-		i = 0;
-		out = "";
-		while (i < len) {
-			c1 = str.charCodeAt(i++) & 255;
-			if (i == len) {
-				out += b64map.charAt(c1 >> 2);
-				out += b64map.charAt((c1 & 3) << 4);
-				out += "==";
-				break;
-			}
-			c2 = str.charCodeAt(i++);
-			if (i == len) {
-				out += b64map.charAt(c1 >> 2);
-				out += b64map.charAt((c1 & 3) << 4 | (c2 & 240) >> 4);
-				out += b64map.charAt((c2 & 15) << 2);
-				out += "=";
-				break;
-			}
-			c3 = str.charCodeAt(i++);
-			out += b64map.charAt(c1 >> 2);
-			out += b64map.charAt((c1 & 3) << 4 | (c2 & 240) >> 4);
-			out += b64map.charAt((c2 & 15) << 2 | (c3 & 192) >> 6);
-			out += b64map.charAt(c3 & 63);
-		}
-		return out;
-	}
-	/**
-	* Base64解码
-	* @param {string} str Base64编码字符串
-	* @returns {string} 解码结果
-	*/
-	function atob(str) {
-		var c1, c2, c3, c4;
-		var i, len = str.length, out;
-		i = 0;
-		out = "";
-		while (i < len) {
-			do
-				c1 = base64DecodeChars[str.charCodeAt(i++) & 255];
-			while (i < len && c1 == -1);
-			if (c1 == -1) break;
-			do
-				c2 = base64DecodeChars[str.charCodeAt(i++) & 255];
-			while (i < len && c2 == -1);
-			if (c2 == -1) break;
-			out += String.fromCharCode(c1 << 2 | (c2 & 48) >> 4);
-			do {
-				c3 = str.charCodeAt(i++) & 255;
-				if (c3 == 61) return out;
-				c3 = base64DecodeChars[c3];
-			} while (i < len && c3 == -1);
-			if (c3 == -1) break;
-			out += String.fromCharCode((c2 & 15) << 4 | (c3 & 60) >> 2);
-			do {
-				c4 = str.charCodeAt(i++) & 255;
-				if (c4 == 61) return out;
-				c4 = base64DecodeChars[c4];
-			} while (i < len && c4 == -1);
-			if (c4 == -1) break;
-			out += String.fromCharCode((c3 & 3) << 6 | c4);
-		}
-		return out;
-	}
-	return {
-		atob,
-		btoa
-	};
-}
-const { atob: atob$2, btoa: btoa$2 } = window_b64();
-/**
-* Base64编码（使用CryptoJS）
-* @param {string} text 待编码文本
-* @returns {string} Base64编码结果
-*/
-function base64Encode$1(text) {
-	return CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(text));
-}
-/**
-* Base64解码（使用CryptoJS）
-* @param {string} text Base64编码文本
-* @returns {string} 解码结果
-*/
-function base64Decode$2(text) {
-	return CryptoJS.enc.Utf8.stringify(CryptoJS.enc.Base64.parse(text));
-}
-/**
-* MD5哈希
-* @param {string} text 待哈希文本
-* @returns {string} MD5哈希值
-*/
-function md5$1(text) {
-	return CryptoJS.MD5(text).toString();
-}
-/**
-* RC4加密
-* @param {string} word 待加密内容
-* @param {string} key 加密密钥
-* @returns {string} 加密结果
-*/
-function rc4Encrypt(word, key) {
-	return CryptoJS.RC4.encrypt(word, CryptoJS.enc.Utf8.parse(key)).toString();
-}
-/**
-* RC4解密
-* @param {string} word 待解密内容
-* @param {string} key 解密密钥
-* @returns {string} 解密结果
-*/
-function rc4Decrypt(word, key) {
-	const ciphertext = CryptoJS.enc.Hex.parse(word);
-	const key_data = CryptoJS.enc.Utf8.parse(key);
-	return CryptoJS.RC4.decrypt({ ciphertext }, key_data, {
-		mode: CryptoJS.mode.ECB,
-		padding: CryptoJS.pad.Pkcs7
-	}).toString(CryptoJS.enc.Utf8);
-}
-/**
-* RC4解码（自定义实现）
-* @param {string} data 待解码数据
-* @param {string} key 密钥
-* @param {number} t 类型标识
-* @returns {string} 解码结果
-*/
-function rc4_decode(data, key, t) {
-	let pwd = key || "ffsirllq";
-	let cipher = "";
-	key = [];
-	let box = [];
-	let pwd_length = pwd.length;
-	if (t === 1) data = atob$2(data);
-	else data = encodeURIComponent(data);
-	let data_length = data.length;
-	for (let i = 0; i < 256; i++) {
-		key[i] = pwd[i % pwd_length].charCodeAt();
-		box[i] = i;
-	}
-	for (let j = 0, i = 0; i < 256; i++) {
-		j = (j + box[i] + key[i]) % 256;
-		let tmp = box[i];
-		box[i] = box[j];
-		box[j] = tmp;
-	}
-	for (let a = 0, j = 0, i = 0; i < data_length; i++) {
-		a = (a + 1) % 256;
-		j = (j + box[a]) % 256;
-		let tmp = box[a];
-		box[a] = box[j];
-		box[j] = tmp;
-		let k = box[(box[a] + box[j]) % 256];
-		cipher += String.fromCharCode(data[i].charCodeAt() ^ k);
-	}
-	if (t === 1) return decodeURIComponent(cipher);
-	else return btoa$2(cipher);
-}
-/**
-* 十六进制编解码工具
-*/
-const hex = {
-	decode: function(val) {
-		return Buffer.from(val, "hex").toString("utf-8");
-	},
-	encode: function(val) {
-		return Buffer.from(val, "utf-8").toString("hex");
-	}
-};
-/**
-* 解析编码格式
-* @param {string} value 值
-* @param {string} encoding 编码格式
-* @returns {Object} CryptoJS编码对象
-*/
-const parseEncode = function(value, encoding) {
-	switch (encoding) {
-		case "base64": return CryptoJS.enc.Base64.parse(value);
-		case "hex": return CryptoJS.enc.Hex.parse(value);
-		case "latin1": return CryptoJS.enc.Latin1.parse(value);
-		case "utf8": return CryptoJS.enc.Utf8.parse(value);
-		default: return CryptoJS.enc.Utf8.parse(value);
-	}
-};
-/**
-* 格式化编码输出
-* @param {Object} value CryptoJS对象
-* @param {string} encoding 编码格式
-* @returns {string} 格式化结果
-*/
-const formatEncode = function(value, encoding) {
-	switch (encoding.toLowerCase()) {
-		case "base64": return value.toString();
-		case "hex": return value.ciphertext.toString();
-	}
-};
-/**
-* 格式化解码输出
-* @param {Object} value CryptoJS对象
-* @param {string} encoding 编码格式
-* @returns {string} 格式化结果
-*/
-const formatDecode = function(value, encoding) {
-	switch (encoding.toLowerCase()) {
-		case "utf8": return value.toString(CryptoJS.enc.Utf8);
-		case "base64": return value.toString(CryptoJS.enc.Base64);
-		case "hex": return value.toString(CryptoJS.enc.Hex);
-		default: return value.toString(CryptoJS.enc.Utf8);
-	}
-};
-/**
-* 获取加密模式
-* @param {string} mode 模式名称
-* @returns {Object} CryptoJS模式对象
-*/
-const getMode = function(mode) {
-	switch (mode.toLowerCase()) {
-		case "cbc": return CryptoJS.mode.CBC;
-		case "cfb": return CryptoJS.mode.CFB;
-		case "ofb": return CryptoJS.mode.OFB;
-		case "ctr": return CryptoJS.mode.CTR;
-		case "ecb": return CryptoJS.mode.ECB;
-		default: return CryptoJS.mode.CBC;
-	}
-};
-/**
-* 获取填充方式
-* @param {string} padding 填充方式名称
-* @returns {Object} CryptoJS填充对象
-*/
-const getPad = function(padding) {
-	switch (padding.toLowerCase()) {
-		case "zeropadding": return CryptoJS.pad.ZeroPadding;
-		case "pkcs5padding":
-		case "pkcs7padding": return CryptoJS.pad.Pkcs7;
-		case "ansix923": return CryptoJS.pad.AnsiX923;
-		case "iso10126": return CryptoJS.pad.Iso10126;
-		case "iso97971": return CryptoJS.pad.Iso97971;
-		case "nopadding": return CryptoJS.pad.NoPadding;
-		default: return CryptoJS.pad.ZeroPadding;
-	}
-};
-/**
-* RC4加密解密工具
-*/
-const rc4 = {
-	encode: function(val, key, encoding = "utf8", keyEncoding = "utf8", outputEncode = "base64") {
-		if (!["base64", "hex"].includes(outputEncode.toLowerCase())) return "";
-		if (!key || !val) return "";
-		const plaintext = parseEncode(val, encoding);
-		const v = parseEncode(key, keyEncoding);
-		return formatEncode(CryptoJS.RC4.encrypt(plaintext, v), outputEncode);
-	},
-	decode: function(val, key, encoding = "utf8", keyEncoding = "utf8", outputEncode = "base64") {
-		if (!["base64", "hex"].includes(encoding.toLowerCase())) return "";
-		if (!key || !val) return "";
-		const plaintext = parseEncode(val, encoding);
-		const v = parseEncode(key, keyEncoding);
-		return formatDecode(CryptoJS.RC4.toString(plaintext, v), outputEncode);
-	}
-};
-//#endregion
 //#region ../utils/pan/pan123.js
 /**
 * 123网盘API操作类
@@ -115320,11 +115321,6 @@ const Quark$1 = new QuarkHandler();
 //#endregion
 //#region ../utils/pan/uc.js
 /**
-* UC网盘处理器模块
-* 提供UC网盘分享链接解析、文件下载、转存等功能
-* @module uc-handler
-*/
-/**
 * UC网盘处理器类
 * 负责处理UC网盘的各种操作，包括分享链接解析、文件下载、转存等
 */
@@ -115405,6 +115401,17 @@ var UCHandler = class {
 	* @param {Object} cfg - 配置对象
 	*/
 	async initUC(db, cfg) {
+		if (this.token) {
+			let exp = JSON.parse(import_crypto_js.default.enc.Base64.parse(this.token.split(".")[1]).toString(import_crypto_js.default.enc.Utf8));
+			let now = Math.floor(Date.now() / 1e3);
+			if (exp.exp < now) {
+				console.log("登录状态已过期,尝试刷新Token");
+				await this.refreshUcToken();
+			} else {
+				console.log("登录成功，继续使用,可使用时间截止到：" + (/* @__PURE__ */ new Date(exp.exp * 1e3)).toLocaleString());
+				console.log("UC TV token获取成功：" + this.token);
+			}
+		}
 		if (this.cookie) console.log("cookie 获取成功");
 		else console.log("cookie 获取失败");
 	}
@@ -115505,13 +115512,13 @@ var UCHandler = class {
 			Cookie: this.cookie || ""
 		});
 		method = method || "post";
-		const resp = method === "get" ? await req$1.get(`${this.apiUrl}/${url}`, { headers }).catch((err) => {
+		const resp = method === "get" ? await reqs.get(`${this.apiUrl}/${url}`, { headers }).catch((err) => {
 			console.error(err);
 			return err.response || {
 				status: 500,
 				data: {}
 			};
-		}) : await req$1.post(`${this.apiUrl}/${url}`, data, { headers }).catch((err) => {
+		}) : await reqs.post(`${this.apiUrl}/${url}`, data, { headers }).catch((err) => {
 			console.error(err);
 			return err.response || {
 				status: 500,
@@ -115616,6 +115623,7 @@ var UCHandler = class {
 			else if (item.file === true && item.obj_category === "video") {
 				if (item.size < 1024 * 1024 * 5) continue;
 				item.stoken = this.shareTokenCache[shareData.shareId].stoken;
+				item.file_name = text.test(item.file_name) ? item.file_name.replace(text, "") : item.file_name;
 				videos.push(item);
 			} else if (item.type === "file" && this.subtitleExts.some((x) => item.file_name.endsWith(x))) subtitles.push(item);
 			if (page < Math.ceil(listData.metadata._total / prePage)) {
@@ -115728,7 +115736,48 @@ var UCHandler = class {
 		const data = method + "&" + pathname + "&" + timestamp + "&" + key;
 		return import_crypto_js.default.SHA256(data).toString();
 	}
+	async refreshUcToken() {
+		const timestamp = Math.floor(Date.now() / 1e3).toString() + "000";
+		const deviceID = this.Addition.DeviceID || this.generateDeviceID(timestamp);
+		const reqId = this.generateReqId(deviceID, timestamp);
+		let data = JSON.stringify({
+			"req_id": reqId,
+			"app_ver": this.conf.appVer,
+			"device_id": deviceID,
+			"device_brand": "OPPO",
+			"platform": "tv",
+			"device_name": "PCRT00",
+			"device_model": "PCRT00",
+			"build_device": "aosp",
+			"build_product": "PCRT00",
+			"device_gpu": "Adreno%20(TM)%20640",
+			"activity_rect": "%7B%7D",
+			"channel": this.conf.channel,
+			"refresh_token": this.token
+		});
+		let config = {
+			method: "POST",
+			url: "http://api.extscreen.com/ucdrive/token",
+			headers: {
+				"User-Agent": "Mozilla/5.0 (Linux; U; Android 7.1.2; zh-cn; PCRT00 Build/N2G47O) AppleWebKit/533.1 (KHTML, like Gecko) Mobile Safari/533.1",
+				"Connection": "Keep-Alive",
+				"Accept-Encoding": "gzip",
+				"Content-Type": "application/json",
+				"Cookie": "sl-session=VIaxTAKF8mdJBhU2uda0zA=="
+			},
+			data
+		};
+		let req = await axios.request(config);
+		if (req.status === 200) {
+			console.log("刷新token成功");
+			const token = req.data.data.access_token;
+			let exp = JSON.parse(import_crypto_js.default.enc.Base64.parse(token.split(".")[1]).toString(import_crypto_js.default.enc.Utf8));
+			console.log("登录成功，继续使用,可使用时间截止到：" + (/* @__PURE__ */ new Date(exp.exp * 1e3)).toLocaleString());
+			ENV.set("uc_token_cookie", token);
+		}
+	}
 	async getDownload(shareId, stoken, fileId, fileToken, clean) {
+		await this.initUC();
 		if (!this.saveFileIdCaches[fileId]) {
 			const saveFileId = await this.save(shareId, stoken, fileId, fileToken, clean);
 			if (!saveFileId) return null;
@@ -115785,38 +115834,8 @@ var UCHandler = class {
 				return video;
 			}
 			if (req.data.status === -1 || req.data.errno === 10001) {
-				let data = JSON.stringify({
-					"req_id": reqId,
-					"app_ver": this.conf.appVer,
-					"device_id": deviceID,
-					"device_brand": "OPPO",
-					"platform": "tv",
-					"device_name": "PCRT00",
-					"device_model": "PCRT00",
-					"build_device": "aosp",
-					"build_product": "PCRT00",
-					"device_gpu": "Adreno%20(TM)%20640",
-					"activity_rect": "%7B%7D",
-					"channel": this.conf.channel,
-					"refresh_token": this.token
-				});
-				let config = {
-					method: "POST",
-					url: "http://api.extscreen.com/ucdrive/token",
-					headers: {
-						"User-Agent": "Mozilla/5.0 (Linux; U; Android 7.1.2; zh-cn; PCRT00 Build/N2G47O) AppleWebKit/533.1 (KHTML, like Gecko) Mobile Safari/533.1",
-						"Connection": "Keep-Alive",
-						"Accept-Encoding": "gzip",
-						"Content-Type": "application/json",
-						"Cookie": "sl-session=VIaxTAKF8mdJBhU2uda0zA=="
-					},
-					data
-				};
-				let req = await axios.request(config);
-				if (req.status === 200) {
-					ENV.set("uc_token_cookie", req.data.data.refresh_token);
-					return await this.getDownload(shareId, stoken, fileId, fileToken, clean);
-				}
+				await this.refreshUcToken();
+				return await this.getDownload(shareId, stoken, fileId, fileToken, clean);
 			}
 		} else {
 			const down = await this.api(`file/download?${this.pr}`, { fids: [this.saveFileIdCaches[fileId]] });
@@ -115828,7 +115847,10 @@ var UCHandler = class {
 					"cookie": low_cookie,
 					"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) quark-cloud-drive/2.5.20 Chrome/100.0.4896.160 Electron/18.3.5.4-b478491100 Safari/537.36 Channel/pckk_other_ch"
 				};
-				if (!(await this.testSupport(low_url, low_headers))[0]) try {
+				const test_result = await this.testSupport(low_url, low_headers);
+				console.log("test_result:", test_result);
+				if (!test_result[0]) try {
+					console.log(`getDownload:自动刷新UC cookie`);
 					await this.refreshUcCookie("getDownload");
 				} catch (e) {
 					console.log(`getDownload:自动刷新UC cookie失败:${e.message}`);
@@ -115841,7 +115863,7 @@ var UCHandler = class {
 	async getLazyResult(downCache, mediaProxyUrl) {
 		const urls = [];
 		if (Array.isArray(downCache)) downCache.forEach((it) => {
-			urls.push(it.name, it.url);
+			urls.push(it.name, it.url + "#isVideo=true##fastPlayMode##threads=10#");
 		});
 		return {
 			parse: 0,
@@ -115849,7 +115871,7 @@ var UCHandler = class {
 		};
 	}
 	async testSupport(url, headers) {
-		const resp = await req$1.get(url, {
+		const resp = await reqs.get(url, {
 			responseType: "stream",
 			headers: Object.assign({ Range: "bytes=0-0" }, headers)
 		}).catch((err) => {
@@ -115959,7 +115981,7 @@ var UCHandler = class {
 						const start = chunkIdx * chunkSize;
 						const end = Math.min(contentLength - 1, (chunkIdx + 1) * chunkSize - 1);
 						console.log(inReq.id, chunkIdx);
-						const dlResp = await req$1.get(url, {
+						const dlResp = await reqs.get(url, {
 							responseType: "stream",
 							timeout,
 							headers: Object.assign({ Range: `bytes=${start}-${end}` }, headers)
@@ -120477,7 +120499,7 @@ var static_exports = /* @__PURE__ */ __exportAll({
 	merge: () => merge,
 	parseHTML: () => parseHTML,
 	root: () => root$1,
-	text: () => text$1,
+	text: () => text$2,
 	xml: () => xml
 });
 /**
@@ -120535,7 +120557,7 @@ function xml(dom) {
 * @param elements - Elements to render.
 * @returns The rendered document.
 */
-function text$1(elements) {
+function text$2(elements) {
 	const elems = elements !== null && elements !== void 0 ? elements : this ? this.root() : [];
 	let ret = "";
 	for (let i = 0; i < elems.length; i++) ret += textContent(elems[i]);
@@ -122408,7 +122430,7 @@ function getAttr(elem, name, xmlMode) {
 	(_a = elem.attribs) !== null && _a !== void 0 || (elem.attribs = {});
 	if (!name) return elem.attribs;
 	if (hasOwn(elem.attribs, name)) return !xmlMode && rboolean.test(name) ? name : elem.attribs[name];
-	if (elem.name === "option" && name === "value") return text$1(elem.children);
+	if (elem.name === "option" && name === "value") return text$2(elem.children);
 	if (elem.name === "input" && (elem.attribs["type"] === "radio" || elem.attribs["type"] === "checkbox") && name === "value") return "on";
 }
 /**
@@ -122618,7 +122640,7 @@ function val(value) {
 				for (const val of values) this.find(`option[value="${val}"]`).attr("selected", "");
 				return this;
 			}
-			return this.attr("multiple") ? option.toArray().map((el) => text$1(el.children)) : option.attr("value");
+			return this.attr("multiple") ? option.toArray().map((el) => text$2(el.children)) : option.attr("value");
 		}
 		case "button":
 		case "input":
@@ -125377,7 +125399,7 @@ var manipulation_exports = /* @__PURE__ */ __exportAll({
 	prependTo: () => prependTo,
 	remove: () => remove,
 	replaceWith: () => replaceWith,
-	text: () => text,
+	text: () => text$1,
 	toString: () => toString$2,
 	unwrap: () => unwrap,
 	wrap: () => wrap$1,
@@ -126047,9 +126069,9 @@ function html(str) {
 function toString$2() {
 	return this._render(this);
 }
-function text(str) {
-	if (str === void 0) return text$1(this);
-	if (typeof str === "function") return domEach(this, (el, i) => this._make(el).text(str.call(el, i, text$1([el]))));
+function text$1(str) {
+	if (str === void 0) return text$2(this);
+	if (typeof str === "function") return domEach(this, (el, i) => this._make(el).text(str.call(el, i, text$2([el]))));
 	return domEach(this, (el) => {
 		if (!hasChildren(el)) return;
 		for (const child of el.children) child.next = child.prev = child.parent = null;
@@ -393958,6 +393980,27 @@ const ENGINES = {
 	php: php_default,
 	catvod: catvod_default
 };
+/**
+* 创建带超时的Promise包装函数
+* 为API操作添加超时控制，防止长时间阻塞
+*
+* @param {Promise} promise - 要包装的Promise对象
+* @param {number|null} timeoutMs - 超时时间（毫秒），null则使用默认值
+* @param {string} operation - 操作描述，用于错误信息
+* @param {string|null} invokeMethod - 调用方法类型，用于确定超时时间
+* @returns {Promise} 包装后的Promise，会在超时时reject
+*/
+function withTimeout(promise, timeoutMs = null, operation = "API操作", invokeMethod = null) {
+	let defaultTimeout;
+	if (invokeMethod === "action") defaultTimeout = 60 * 1e3;
+	else defaultTimeout = 20 * 1e3;
+	const actualTimeout = timeoutMs || defaultTimeout;
+	return Promise.race([promise, new Promise((_, reject) => {
+		setTimeout(() => {
+			reject(/* @__PURE__ */ new Error(`${operation}超时 (${actualTimeout}ms)`));
+		}, actualTimeout);
+	})]);
+}
 async function getEngine(moduleName, query, inject_env) {
 	inject_env = inject_env || {};
 	let { apiEngine, moduleDir, _ext, modulePath } = getApiEngine(ENGINES, moduleName, query, options);
@@ -394011,7 +394054,7 @@ async function getEngine(moduleName, query, inject_env) {
 		const _modulePath = path.join(moduleDir, `${_moduleName}${_ext}`);
 		if (!existsSync(_modulePath)) return null;
 		const _env = getEnv(_moduleName);
-		const RULE = await apiEngine.getRule(_modulePath, _env);
+		const RULE = await withTimeout(apiEngine.getRule(_modulePath, _env), null, `获取规则[${_moduleName}]`);
 		/**
 		* 规则函数调用方法
 		* 提供统一的规则方法调用接口
@@ -394049,39 +394092,40 @@ async function getEngine(moduleName, query, inject_env) {
 					break;
 			}
 			if (!invokeMethod) if (typeof RULE[_method] !== "function") return null;
-			else return await RULE[_method](..._args);
-			return await apiEngine[invokeMethod](_modulePath, _env, ..._args);
+			else return await withTimeout(RULE[_method], null, `规则方法[${_method}]`);
+			return await withTimeout(apiEngine[invokeMethod](_modulePath, _env, ..._args), null, `规则调用[${_method}]`, invokeMethod);
 		};
 		return RULE;
 	};
 	const pg = Number(query.pg) || 1;
-	if ("play" in query) return await apiEngine.play(modulePath, env, query.flag, query.play);
+	if ("play" in query) return await withTimeout(apiEngine.play(modulePath, env, query.flag, query.play), null, `播放接口[${moduleName}]`);
 	if ("ac" in query && "t" in query) {
 		let ext = query.ext;
 		let extend = {};
 		if (ext) try {
-			extend = ext;
+			extend = JSON.parse(base64Decode$2(ext));
 		} catch (e) {
 			console.error(`筛选参数错误:${e.message}`);
 		}
-		return await apiEngine.category(modulePath, env, query.t, pg, 1, extend);
+		return await withTimeout(apiEngine.category(modulePath, env, query.t, pg, 1, extend), null, `分类接口[${moduleName}]`);
 	}
-	if ("ac" in query && "ids" in query) return await apiEngine.detail(modulePath, env, query.ids);
-	if ("ac" in query && "action" in query) return await apiEngine.action(modulePath, env, query.action, query.value);
+	if ("ac" in query && "ids" in query) return await withTimeout(apiEngine.detail(modulePath, env, query.ids), null, `详情接口[${moduleName}]`);
+	if ("ac" in query && "action" in query) return await withTimeout(apiEngine.action(modulePath, env, query.action, query.value), null, `动作接口[${moduleName}]`, "action");
 	if ("wd" in query) {
 		const quick = "quick" in query ? query.quick : 0;
-		return await apiEngine.search(modulePath, env, query.wd, quick, pg);
+		return await withTimeout(apiEngine.search(modulePath, env, query.wd, quick, pg), null, `搜索接口[${moduleName}]`);
 	}
-	if ("proxy" in query) return await apiEngine.proxy(modulePath, env, query);
+	if ("proxy" in query) return await withTimeout(apiEngine.proxy(modulePath, env, query), null, `代理接口[${moduleName}]`);
 	if ("parse" in query) {
 		let t1 = (/* @__PURE__ */ new Date()).getTime();
 		const jxName = query.parse;
-		const backResp = await jx(path.join(options.jxDir, `${jxName}.js`), env, query);
+		const backResp = await withTimeout(jx(path.join(options.jxDir, `${jxName}.js`), env, query), null, `解析接口[${jxName}]`);
 		const statusCode = 200;
 		const mediaType = "application/json; charset=utf-8";
 		if (typeof backResp === "object") {
 			if (!backResp.code) backResp.code = backResp.url && backResp.url !== query.url ? 200 : 404;
 			if (!backResp.msg) backResp.msg = `${jxName}解析${backResp.url && backResp.url !== query.url ? "成功" : "失败"}`;
+			backResp.type = `${mediaType}; charset=utf-8`;
 			backResp.cost = (/* @__PURE__ */ new Date()).getTime() - t1;
 			let backRespSend = backResp;
 			console.log(backRespSend);
@@ -394094,7 +394138,8 @@ async function getEngine(moduleName, query, inject_env) {
 				code: statusCode,
 				url: backResp,
 				msg: `${jxName}解析${msgState}`,
-				cost: t2 - t1
+				cost: t2 - t1,
+				type: `${mediaType}; charset=utf-8`
 			};
 			console.log(backRespSend);
 			return backRespSend;
@@ -394104,20 +394149,21 @@ async function getEngine(moduleName, query, inject_env) {
 				code: 404,
 				url: "",
 				msg: `${jxName}解析失败`,
-				cost: t2 - t1
+				cost: t2 - t1,
+				type: `${mediaType}; charset=utf-8`
 			};
 			console.log(backRespSend);
 			return backRespSend;
 		}
 	}
 	if ("refresh" in query) {
-		const { context, ...responseObject } = await apiEngine.init(modulePath, env, true);
+		const { context, ...responseObject } = await withTimeout(apiEngine.init(modulePath, env, true), null, `初始化接口[${moduleName}]`);
 		return responseObject;
 	}
 	if (!("filter" in query)) query.filter = 1;
 	const filter = "filter" in query ? query.filter : 1;
-	const resultHome = await apiEngine.home(modulePath, env, filter);
-	const resultHomeVod = await apiEngine.homeVod(modulePath, env);
+	const resultHome = await withTimeout(apiEngine.home(modulePath, env, filter), null, `首页接口[${moduleName}]`);
+	const resultHomeVod = await withTimeout(apiEngine.homeVod(modulePath, env), null, `推荐接口[${moduleName}]`);
 	let result = { ...resultHome };
 	if (Array.isArray(resultHomeVod) && resultHomeVod.length > 0) Object.assign(result, { list: resultHomeVod });
 	return result;
