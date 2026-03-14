@@ -115621,6 +115621,7 @@ var UCHandler = class {
 			const subDir = [];
 			for (const item of items) if (item.dir === true) subDir.push(item);
 			else if (item.file === true && item.obj_category === "video") {
+				let text = /[#|'"\[\]&<>]/g;
 				if (item.size < 1024 * 1024 * 5) continue;
 				item.stoken = this.shareTokenCache[shareData.shareId].stoken;
 				item.file_name = text.test(item.file_name) ? item.file_name.replace(text, "") : item.file_name;
@@ -120499,7 +120500,7 @@ var static_exports = /* @__PURE__ */ __exportAll({
 	merge: () => merge,
 	parseHTML: () => parseHTML,
 	root: () => root$1,
-	text: () => text$2,
+	text: () => text$1,
 	xml: () => xml
 });
 /**
@@ -120557,7 +120558,7 @@ function xml(dom) {
 * @param elements - Elements to render.
 * @returns The rendered document.
 */
-function text$2(elements) {
+function text$1(elements) {
 	const elems = elements !== null && elements !== void 0 ? elements : this ? this.root() : [];
 	let ret = "";
 	for (let i = 0; i < elems.length; i++) ret += textContent(elems[i]);
@@ -122430,7 +122431,7 @@ function getAttr(elem, name, xmlMode) {
 	(_a = elem.attribs) !== null && _a !== void 0 || (elem.attribs = {});
 	if (!name) return elem.attribs;
 	if (hasOwn(elem.attribs, name)) return !xmlMode && rboolean.test(name) ? name : elem.attribs[name];
-	if (elem.name === "option" && name === "value") return text$2(elem.children);
+	if (elem.name === "option" && name === "value") return text$1(elem.children);
 	if (elem.name === "input" && (elem.attribs["type"] === "radio" || elem.attribs["type"] === "checkbox") && name === "value") return "on";
 }
 /**
@@ -122640,7 +122641,7 @@ function val(value) {
 				for (const val of values) this.find(`option[value="${val}"]`).attr("selected", "");
 				return this;
 			}
-			return this.attr("multiple") ? option.toArray().map((el) => text$2(el.children)) : option.attr("value");
+			return this.attr("multiple") ? option.toArray().map((el) => text$1(el.children)) : option.attr("value");
 		}
 		case "button":
 		case "input":
@@ -125399,7 +125400,7 @@ var manipulation_exports = /* @__PURE__ */ __exportAll({
 	prependTo: () => prependTo,
 	remove: () => remove,
 	replaceWith: () => replaceWith,
-	text: () => text$1,
+	text: () => text,
 	toString: () => toString$2,
 	unwrap: () => unwrap,
 	wrap: () => wrap$1,
@@ -126069,9 +126070,9 @@ function html(str) {
 function toString$2() {
 	return this._render(this);
 }
-function text$1(str) {
-	if (str === void 0) return text$2(this);
-	if (typeof str === "function") return domEach(this, (el, i) => this._make(el).text(str.call(el, i, text$2([el]))));
+function text(str) {
+	if (str === void 0) return text$1(this);
+	if (typeof str === "function") return domEach(this, (el, i) => this._make(el).text(str.call(el, i, text$1([el]))));
 	return domEach(this, (el) => {
 		if (!hasChildren(el)) return;
 		for (const child of el.children) child.next = child.prev = child.parent = null;
