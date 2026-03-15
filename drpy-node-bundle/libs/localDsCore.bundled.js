@@ -32,7 +32,7 @@ import process$1 from "node:process";
 import os from "node:os";
 import tty from "node:tty";
 import util$1 from "node:util";
-import { createRequire as createRequire$1 } from "module";
+import Module, { createRequire as createRequire$1 } from "module";
 import { setTimeout as setTimeout$1 } from "timers";
 import { pipeline } from "stream/promises";
 import diagnosticsChannel from "diagnostics_channel";
@@ -14367,7 +14367,7 @@ let debounceTimers = /* @__PURE__ */ new Map();
 function startJsonWatcher(ENGINES, jsonDir) {
 	if (process.env.NODE_ENV !== "development") return;
 	try {
-		watch(jsonDir, { recursive: true }, (eventType, filename) => {
+		jsonWatcher = watch(jsonDir, { recursive: true }, (eventType, filename) => {
 			if (filename && filename.endsWith(".json")) {
 				if (debounceTimers.has(filename)) clearTimeout(debounceTimers.get(filename));
 				const timer = setTimeout(() => {
@@ -14375,9 +14375,11 @@ function startJsonWatcher(ENGINES, jsonDir) {
 					ENGINES.drpyS.clearAllCache();
 					debounceTimers.delete(filename);
 				}, 100);
+				if (timer.unref) timer.unref();
 				debounceTimers.set(filename, timer);
 			}
 		});
+		if (jsonWatcher.unref) jsonWatcher.unref();
 	} catch (error) {
 		console.error("start json file listening failed with error:", error);
 	}
@@ -374920,6 +374922,20 @@ const __dirname$4 = path.dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = path.resolve(__dirname$4, "../");
 const LIB_ROOT = path.join(ROOT_DIR, "spider/js");
 const customRequire = createRequire$1(import.meta.url);
+/**
+* Patch Module.prototype.require to handle bundled modules in CJS context
+* This allows native CJS modules (like those loaded via require('./lib.js')) to find
+* bundled dependencies (axios, iconv-lite, etc.) which are exposed on globalThis.
+*/
+const originalRequire = Module.prototype.require;
+Module.prototype.require = function(id) {
+	if (id === "iconv-lite" && globalThis.iconv) return globalThis.iconv;
+	if (id === "axios" && globalThis.axios) return globalThis.axios;
+	if (id === "cheerio" && globalThis.cheerio) return globalThis.cheerio;
+	if (id === "qs" && globalThis.qs) return globalThis.qs;
+	if (id === "crypto-js" && globalThis.CryptoJS) return globalThis.CryptoJS;
+	return originalRequire.apply(this, arguments);
+};
 const rootRequire = (modulePath) => {
 	if (modulePath === "iconv-lite") return globalThis.iconv;
 	if (modulePath === "axios") return globalThis.axios;
@@ -393934,6 +393950,11 @@ var catvod_default = {
 };
 //#endregion
 //#region localDsCore.js
+const ENGINES = {
+	drpyS: drpyS_exports,
+	php: php_default,
+	catvod: catvod_default
+};
 const __dirname$1 = path.dirname(fileURLToPath(import.meta.url));
 const isBundled = __dirname$1.endsWith("dist") || __dirname$1.endsWith("libs") || __dirname$1.endsWith("dist" + path.sep) || __dirname$1.endsWith("libs" + path.sep);
 const possibleRoots = [
@@ -393962,15 +393983,7 @@ const options = {
 	catDir,
 	catLibDir
 };
-/**
-* 支持的引擎映射表
-* 包含drpyS、php、catvod
-*/
-const ENGINES = {
-	drpyS: drpyS_exports,
-	php: php_default,
-	catvod: catvod_default
-};
+startJsonWatcher(ENGINES, jsonDir);
 /**
 * 创建带超时的Promise包装函数
 * 为API操作添加超时控制，防止长时间阻塞
@@ -393987,9 +394000,10 @@ function withTimeout(promise, timeoutMs = null, operation = "API操作", invokeM
 	else defaultTimeout = 20 * 1e3;
 	const actualTimeout = timeoutMs || defaultTimeout;
 	return Promise.race([promise, new Promise((_, reject) => {
-		setTimeout(() => {
+		const timer = setTimeout(() => {
 			reject(/* @__PURE__ */ new Error(`${operation}超时 (${actualTimeout}ms)`));
 		}, actualTimeout);
+		if (timer.unref) timer.unref();
 	})]);
 }
 async function getEngine(moduleName, query, inject_env) {
