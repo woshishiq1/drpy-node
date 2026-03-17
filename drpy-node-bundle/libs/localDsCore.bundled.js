@@ -379411,8 +379411,8 @@ var require_tunnel = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 	module.exports = require_tunnel$1();
 }));
 //#endregion
-//#region ../libs_drpy/jsonpathplus.min.js
-var require_jsonpathplus_min = /* @__PURE__ */ __commonJSMin(((exports, module) => {
+//#region shim/original-jsonpath.js
+var require_original_jsonpath = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 	(function(e, t) {
 		"object" == typeof exports && "undefined" != typeof module ? t(exports) : "function" == typeof define && define.amd ? define(["exports"], t) : t((e = "undefined" != typeof globalThis ? globalThis : e || self).JSONPath = {});
 	})(exports, function(e) {
@@ -380658,13 +380658,21 @@ var require_jsonpathplus_min = /* @__PURE__ */ __commonJSMin(((exports, module) 
 	});
 }));
 //#endregion
-//#region ../libs_drpy/htmlParser.js
+//#region shim/jsonpath-shim.js
 var import_tunnel = /* @__PURE__ */ __toESM(require_tunnel(), 1);
+var import_original_jsonpath = /* @__PURE__ */ __toESM(require_original_jsonpath(), 1);
+const JP = import_original_jsonpath.JSONPath || import_original_jsonpath.default?.JSONPath || import_original_jsonpath.default;
+if (typeof globalThis !== "undefined") {
+	if (!globalThis.JSONPath) globalThis.JSONPath = {};
+	if (typeof JP === "function") globalThis.JSONPath.JSONPath = JP;
+	else if (JP && JP.JSONPath) globalThis.JSONPath = JP;
+}
+//#endregion
+//#region ../libs_drpy/htmlParser.js
 /**
 * HTML解析器工具
 * 基于cheerio提供HTML和JSON解析功能，支持类似海阔视界的解析语法
 */
-var import_jsonpathplus_min = require_jsonpathplus_min();
 /**
 * JSONPath查询工具
 */
