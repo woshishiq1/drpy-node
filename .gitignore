@@ -156,6 +156,8 @@ dist
 /clipboard.txt.bak
 /apps/cat/
 /data/temp/
+/.playwright-mcp/
+/data/source-checker/_fix_work/
 /scripts/mjs/index.db
 /scripts/test/rsa-test.json
 /apps/salary/
@@ -163,3 +165,7 @@ dist
 .DS_Store
 /spider/catvod/mtv60w[差].js
 /drpy-node-bundle/jx/_30wmv.js
+/.git-token
+
+# mcpb
+drpy-node-mcp/*.mcpb

@@ -63,6 +63,7 @@ nodejs作为服务端的drpy实现。全面升级异步写法
 * [DS 二进制插件项目-file-index](https://github.com/hjdhnx/file-index)
 * [DS web插件项目-drplayer](https://github.com/hjdhnx/DrPlayer)
 * [drpy2打包项目](https://github.com/hjdhnx/drpy-webpack)
+* [drpyS的写源技能仓库](https://github.com/hjdhnx/drpy-node-skill)
 
 ### 免费壳子推荐
 
@@ -72,6 +73,22 @@ nodejs作为服务端的drpy实现。全面升级异步写法
 
 ## 更新记录
 
+### 20260718
+
+更新至V1.4.7
+
+### 20260527
+
+更新至V1.4.6
+
+### 20260428
+
+更新至V1.4.5
+
+### 20260418
+
+更新至V1.4.4
+
 ### 20260322
 
 更新至V1.4.3
@@ -79,26 +96,6 @@ nodejs作为服务端的drpy实现。全面升级异步写法
 ### 20260321
 
 更新至V1.4.2
-
-### 20260320
-
-更新至V1.4.1
-
-### 20260319
-
-更新至V1.3.31
-
-### 20260317
-
-更新至V1.3.30
-
-### 20260315
-
-更新至V1.3.29
-
-### 20260314
-
-更新至V1.3.28
 
 [点此查看完整更新记录](docs/updateRecord.md)
 
