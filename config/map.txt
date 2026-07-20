@@ -14,8 +14,6 @@ emby@@{"server":"http://139.9.106.196:2345","username":"kid","password":""}@@小
 直播转点播[合]@@?type=url&params=../json/live2cms-sc.json@@IPTV四川[官]
 直播转点播[合]@@?type=url&params=../json/live2cms-mv.json@@一万部电影[合]
 采集之王[合]@@?type=url&params=../json/采集静态.json$1@@采王道长[合]
-采集之王[合]@@?type=url&params=../json/采集[zy]静态.json$1@@采王zy[密]
-采集之王[合]@@?type=url&params=../json/采集[密]静态.json$1$@@采王成人[密]
 采集之王[合]@@?type=url&params=../json/采集2024静态.json$1$@@采王2024
 采集之王[合]@@?type=url&params=../json/采集2025静态.json$1$@@采王2025
 采集之王[合]@@?type=url&params=../json/采集2026静态.json$1$@@采王2026
@@ -61,8 +59,6 @@ getapp3.4.4@@{"host":"https://staraugust123456.oss-cn-hangzhou.aliyuncs.com/2.tx
 getapp3.4.4@@{"host":"https://jingyu4k-1312635929.cos.ap-nanjing.myqcloud.com/1.json","datakey":"AAdgrdghjfgswerA","api":2}@@鲸鱼影视[AG³]
 getapp3.4.4@@{"host":"https://99.jl8.top/1.txt","key":"xnybssspqtwotuwj"}@@七月[AG³]
 getapp3.4.4@@{"host":"http://tvb.yy-fun.cc","key":"jcTz6Jda2aKrH8Tk"}@@掌上追剧[AG³]
-AppHs@@{"host":"https://dy.jmzp.net.cn","app_id":"shiguang","deviceid":"","versionCode":"10000","UMENG_CHANNEL":"guan"}@@拾光视频[Hs]
-AppHs@@{"host":"https://dy.jszdzs.com","app_id":"xuebao","deviceid":"","versionCode":"21300","UMENG_CHANNEL":"share"}@@雪豹视频[Hs]
 AppYqk@@{"host":"https://gapi0320.3njzmrx1.com/config.json,https://gapi0320.lq0okex8.com/config.json,https://gapi0320.zabqs8xp.com/config.json,https://yappconfig-20250628-1318635097.cos.ap-shanghai.myqcloud.com/config.json,https://yconfig-20250628-1360051343.cos.ap-guangzhou.myqcloud.com/config.json","appId":"d6d520ea90904f1ba680ed6c9c9f9007","appkey":"70af67d2b6cf47679b397ea4c1886877","udid":"bfc18c00-c866-46cb-8d7b-121c39b942d4","bundlerId":"com.flotimingo.ts","source":"1001_default","version":"1.3.10","versionCode":1104}@@一起看[Ayq]
 AppYqk@@{"host":"https://gapi0725.5p8jcjc.com/config.json,https://gapi0725.olrv5gz.com/config.json,https://gapi0725.mvljeat.com/config.json,https://jzapp-1318635097.cos.ap-shanghai.myqcloud.com/config.json,https://juzi-config-1360051343.cos.ap-shanghai.myqcloud.com/config.json","appId":"fea23e11fc1241409682880e15fb2851","appkey":"f384b87cc9ef41e4842dda977bae2c7f","udid":"bfc18c00-c866-46cb-8d7b-121c39b942d4","bundlerId":"com.voraguzzee.ts","source":"1003_default","version":"1.0.1","versionCode":1000}@@橘子TV[Ayq]
 php@@{"host":"https://www.baidu.com"}@@php测试
